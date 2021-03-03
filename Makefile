@@ -1,14 +1,10 @@
 EST?=$$(go list ./... | grep -v 'vendor')
-HOSTNAME=gitlab.webbankir.team
-NAMESPACE=terraform-providers
+HOSTNAME=tf.webbankir.com
+NAMESPACE=suslovs
 NAME=wbyandex
 BINARY=terraform-provider-${NAME}
-VERSION=0.3
-OS_ARCH1=darwin_amd64
-OS_ARCH2=linux_amd64
-OS_ARCH3=windows_386
-OS_ARCH4=windows_3amd64
-
+VERSION=0.4
+OS_ARCH=darwin_amd64
 
 default: install
 

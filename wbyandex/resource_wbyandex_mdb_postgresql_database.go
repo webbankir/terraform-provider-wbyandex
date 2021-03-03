@@ -44,16 +44,16 @@ func resourceYandexMDBPostgreSQLDatabase() *schema.Resource {
 			"extension": {
 				Type:     schema.TypeSet,
 				Set:      pgExtensionHash,
-				Computed: true,
+				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
 							Type:     schema.TypeString,
-							Computed: true,
+							Required: true,
 						},
 						"version": {
 							Type:     schema.TypeString,
-							Computed: true,
+							Optional: true,
 						},
 					},
 				},

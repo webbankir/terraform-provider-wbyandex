@@ -13,7 +13,7 @@ import (
 )
 
 func getIdAndName(id string) (string, string) {
-	v := strings.Split(id, "-")
+	v := strings.SplitN(id, "-", 2)
 	return v[0], v[1]
 }
 
