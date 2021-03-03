@@ -4,7 +4,7 @@ variables:
   # Package version can only contain numbers (0-9), and dots (.).
   # Must be in the format of X.Y.Z, i.e. should match /\A\d+\.\d+\.\d+\z/ regular expresion.
   # See https://docs.gitlab.com/ee/user/packages/generic_packages/#publish-a-package-file
-  PACKAGE_VERSION: "1.2.3"
+  PACKAGE_VERSION: ${CI_COMMIT_REF_NAME}
   DARWIN_AMD64_BINARY: "terraform-provider-wbyandex_${PACKAGE_VERSION}_darwin_amd64"
   LINUX_AMD64_BINARY: "terraform-provider-wbyandex_${PACKAGE_VERSION}_linux_amd64"
   PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/releases/${PACKAGE_VERSION}"
@@ -18,6 +18,8 @@ stages:
 build:
   stage: build
   image: golang:1.14.14-alpine
+  except:
+    - branches
   script:
     - apk add curl
     - echo ${PACKAGE_REGISTRY_URL}/${LINUX_AMD64_BINARY}
@@ -34,6 +36,8 @@ release:
   # Caution, as of 2021-02-02 these assets links require a login, see:
   # https://gitlab.com/gitlab-org/gitlab/-/issues/299384
   stage: release
+  except:
+    - branches
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   script:
     - |
