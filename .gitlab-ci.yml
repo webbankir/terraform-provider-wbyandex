@@ -1,9 +1,6 @@
 variables:
   DOCKER_DRIVER: overlay2
   IMAGE: $CI_REGISTRY_IMAGE
-  # Package version can only contain numbers (0-9), and dots (.).
-  # Must be in the format of X.Y.Z, i.e. should match /\A\d+\.\d+\.\d+\z/ regular expresion.
-  # See https://docs.gitlab.com/ee/user/packages/generic_packages/#publish-a-package-file
   DARWIN_AMD64_BINARY: "terraform-provider-wbyandex_${CI_COMMIT_REF_NAME}_darwin_amd64"
   LINUX_AMD64_BINARY: "terraform-provider-wbyandex_${CI_COMMIT_REF_NAME}_linux_amd64"
   PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/releases/${CI_COMMIT_REF_NAME}"
@@ -32,8 +29,6 @@ build:
     - docker-fast
 
 release:
-  # Caution, as of 2021-02-02 these assets links require a login, see:
-  # https://gitlab.com/gitlab-org/gitlab/-/issues/299384
   stage: release
   except:
     - branches
@@ -45,85 +40,3 @@ release:
         --assets-link "{\"name\":\"${LINUX_AMD64_BINARY}\",\"url\":\"${PACKAGE_REGISTRY_URL}/${LINUX_AMD64_BINARY}\"}"
   tags:
     - docker-fast
-
-
-#test:deploy:
-#  resource_group: $CI_PROJECT_ID
-#  variables:
-#    CONTOUR: test
-#  stage: deploy
-#  when: on_success
-#  only:
-#    - /^\d.\d+.\d+(-rc.\d+)?$/i
-#  except:
-#    - branches
-#  before_script:
-#    - SENTRY_PROJECT_NAME=$(gradle projects |grep "Root project \'" |awk {'print $3'}|tr -d "'")
-#  script:
-#    - ./gradlew tfTestInit tfTestPlan tfTestApply
-#    - sentry-cli --auth-token $SENTRY_TOKEN --url https://sentry.webbankir.team releases --org webbankir deploys ${SENTRY_PROJECT_NAME}@${CI_COMMIT_REF_NAME} new -e test
-#  artifacts:
-#    paths:
-#      - src/tf/test/full.nomad
-#    name: "terraform-test-${SENTRY_PROJECT_NAME}-${CI_COMMIT_REF_NAME}"
-#  environment:
-#    name: Test
-#    url: https://test.webbankir.com
-#  tags:
-#    - gradle
-#
-#prod:deploy:
-#  resource_group: $CI_PROJECT_ID
-#  stage: deploy
-#  when: manual
-#  variables:
-#    CONTOUR: prod
-#  only:
-#    - /^\d.\d+.\d+$/i
-#  except:
-#    - branches
-#  before_script:
-#    - SENTRY_PROJECT_NAME=$(gradle projects |grep "Root project \'" |awk {'print $3'}|tr -d "'")
-#  script:
-#    - ./gradlew tfProdInit tfProdPlan tfProdApply
-#    - sentry-cli --auth-token $SENTRY_TOKEN --url https://sentry.webbankir.team releases --org webbankir deploys ${SENTRY_PROJECT_NAME}@${CI_COMMIT_REF_NAME} new -e prod
-#  artifacts:
-#    paths:
-#      - src/tf/prod/full.nomad
-#    name: "terraform-prod-${SENTRY_PROJECT_NAME}-${CI_COMMIT_REF_NAME}"
-#  environment:
-#    name: Production
-#    url: https://prod.webbankir.com
-#  tags:
-#    - gradle
-#
-#detekt:
-#  resource_group: $CI_PROJECT_ID
-#  stage: pre
-#  script:
-#    - ./gradlew detekt
-#  tags:
-#    - gradle
-#
-#tests:
-#  resource_group: $CI_PROJECT_ID
-#  stage: pre
-#  script:
-#    - ./gradlew test
-#  tags:
-#    - gradle
-#
-#build:image:
-#  resource_group: $CI_PROJECT_ID
-#  stage: build
-#  only:
-#    - /^\d.\d+.\d+(-rc.\d+)?$/i
-#  before_script:
-#    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
-#    - SENTRY_PROJECT_NAME=$(gradle projects |grep "Root project \'" |awk {'print $3'}|tr -d "'")
-#  script:
-#    - ./gradlew clean dockerPushImage
-#    - sentry-cli --auth-token $SENTRY_TOKEN --url https://sentry.webbankir.team releases --org webbankir new -p $SENTRY_PROJECT_NAME ${SENTRY_PROJECT_NAME}@${CI_COMMIT_REF_NAME}
-#    - sentry-cli --auth-token $SENTRY_TOKEN --url https://sentry.webbankir.team releases --org webbankir set-commits --auto ${SENTRY_PROJECT_NAME}@${CI_COMMIT_REF_NAME}
-#  tags:
-#    - gradle
